@@ -8,6 +8,17 @@ import (
 	"github.com/tuan3w/joy5/format/flv/flvio"
 )
 
+const (
+	//ErrConnectRejected error connect rejected
+	ErrConnectRejected = "NetConnection.Connect.Rejected"
+
+	//ErrPublishBadname invalid app name
+	ErrPublishBadname = "NetStream.Publish.BadName"
+
+	//ErrConnectAppShutdown service temporary unavailable
+	ErrConnectAppShutdown = "NetConnection.Connect.AppShutdown"
+)
+
 type ReadWriteFlusher interface {
 	io.ReadWriter
 	Flush() error
