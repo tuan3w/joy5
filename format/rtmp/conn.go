@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/url"
+	"sync"
 
 	"github.com/tuan3w/joy5/format/flv/flvio"
 )
@@ -78,6 +79,8 @@ type Conn struct {
 	Complete bool
 
 	netConn net.Conn
+
+	l *sync.Mutex
 }
 
 func NewConn(nc net.Conn) *Conn {
@@ -97,6 +100,7 @@ func NewConn(nc net.Conn) *Conn {
 	c.readbuf = make([]byte, 256)
 	c.readbuf2 = make([]byte, 256)
 	c.readAckSize = 2500000
+	c.l = &sync.Mutex{}
 	return c
 }
 
@@ -151,4 +155,13 @@ func (c *Conn) ForceClose(errCode string, msg string) (err error) {
 	c.flushWrite()
 
 	return nil
+}
+
+func (c *Conn) Close() {
+	c.writeCommand(5, c.avmsgsid, "onStatus", c.lastcmd.transid, nil, flvio.AMFMap{
+		{K: "level", V: "status"},
+		{K: "code", V: "NetStream.Play.Stop"},
+		{K: "description", V: "Stopped stream"},
+	})
+	c.flushWrite()
 }
