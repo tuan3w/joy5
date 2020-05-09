@@ -1,10 +1,11 @@
 package rtmp
 
 import (
+	"errors"
 	"io"
 	"net/url"
 
-	"github.com/nareix/joy5/format/flv/flvio"
+	"github.com/tuan3w/joy5/format/flv/flvio"
 )
 
 type ReadWriteFlusher interface {
@@ -53,6 +54,15 @@ type Conn struct {
 
 	SendSampleAccess bool
 	BypassMsgtypeid  []uint8
+
+	// store error happened to connection
+	// will be useful for OnDone method
+	Error error
+
+	// flag indicates that livestream is complete
+	// normally without this flag is set, client can
+	// reconnect to broadcast livestream
+	Complete bool
 }
 
 func NewConn(rw ReadWriteFlusher) *Conn {
@@ -94,4 +104,27 @@ func (c *Conn) flushWrite() error {
 
 func (c *Conn) CloseNotify() <-chan bool {
 	return c.closeNotify
+}
+
+func (c *Conn) ForceClose(errCode string, msg string) (err error) {
+	if errCode == "" {
+		errCode = "NetStream.Play.Stop"
+	}
+
+	if err = c.writeCommand(5, c.avmsgsid,
+		"onStatus", c.lastcmd.transid, nil,
+		flvio.AMFMap{
+			{K: "level", V: "status"},
+			{K: "code", V: errCode},
+			{K: "description", V: msg},
+		},
+	); err != nil {
+		return
+	}
+
+	c.Error = errors.New(msg)
+
+	c.flushWrite()
+
+	return nil
 }

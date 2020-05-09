@@ -8,11 +8,11 @@ import (
 
 	"golang.org/x/net/proxy"
 
-	"github.com/nareix/joy5/format"
-	"github.com/nareix/joy5/format/flv"
-	"github.com/nareix/joy5/format/flv/flvio"
-	"github.com/nareix/joy5/format/rtmp"
 	"github.com/spf13/pflag"
+	"github.com/tuan3w/joy5/format"
+	"github.com/tuan3w/joy5/format/flv"
+	"github.com/tuan3w/joy5/format/flv/flvio"
+	"github.com/tuan3w/joy5/format/rtmp"
 )
 
 var optSocks5proxy string

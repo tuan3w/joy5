@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/nareix/joy5/utils/bits"
+	"github.com/tuan3w/joy5/utils/bits"
 )
 
 // copied from libavcodec/mpeg4audio.h
