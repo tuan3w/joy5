@@ -1,8 +1,10 @@
 package rtmp
 
 import (
+	"bufio"
 	"errors"
 	"io"
+	"net"
 	"net/url"
 
 	"github.com/tuan3w/joy5/format/flv/flvio"
@@ -74,10 +76,17 @@ type Conn struct {
 	// normally without this flag is set, client can
 	// reconnect to broadcast livestream
 	Complete bool
+
+	netConn net.Conn
 }
 
-func NewConn(rw ReadWriteFlusher) *Conn {
+func NewConn(nc net.Conn) *Conn {
+	rw := &bufReadWriter{
+		Reader: bufio.NewReaderSize(nc, BufioSize),
+		Writer: bufio.NewWriterSize(nc, BufioSize),
+	}
 	c := &Conn{}
+	c.netConn = nc
 	c.closeNotify = make(chan bool, 1)
 	c.wrapRW = newWrapReadWriter(c, rw)
 	c.readcsmap = make(map[uint32]*message)
@@ -97,6 +106,10 @@ func (c *Conn) writing() bool {
 	} else {
 		return c.Publishing
 	}
+}
+
+func (c *Conn) NetConn() net.Conn {
+	return c.netConn
 }
 
 func (c *Conn) writePubPlayErrBeforeClose() {

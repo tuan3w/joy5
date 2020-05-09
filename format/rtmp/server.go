@@ -47,11 +47,7 @@ func (s *Server) HandleNetConn(nc net.Conn) {
 	if fn := s.ReplaceRawConn; fn != nil {
 		nc = fn(nc)
 	}
-	rw := &bufReadWriter{
-		Reader: bufio.NewReaderSize(nc, BufioSize),
-		Writer: bufio.NewWriterSize(nc, BufioSize),
-	}
-	c := NewConn(rw)
+	c := NewConn(nc)
 	c.isserver = true
 
 	if fn := s.OnNewConn; fn != nil {

@@ -1,7 +1,6 @@
 package rtmp
 
 import (
-	"bufio"
 	"context"
 	"crypto/tls"
 	"net"
@@ -10,11 +9,7 @@ import (
 )
 
 func (t *Client) FromNetConn(nc net.Conn, u *url.URL, flags int) (c *Conn, err error) {
-	rw := &bufReadWriter{
-		Reader: bufio.NewReaderSize(nc, BufioSize),
-		Writer: bufio.NewWriterSize(nc, BufioSize),
-	}
-	c_ := NewConn(rw)
+	c_ := NewConn(nc)
 	c_.URL = u
 
 	nc.SetDeadline(time.Now().Add(time.Second * 15))
